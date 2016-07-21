@@ -15,12 +15,13 @@ Public Class FormMain
     Private hi As New TupperNumber("4858487703217654168507377107565676789145697178497253677539145554140400556563348457512621699552747286085329444453043522900867835463627684534139226325784627721780019652435679672060185499344481895879597287975234500151317725245852409763852709693688220657683702347418782610255113158808524311487014418886047810569817609678586115532162928674412170506858046678219743015209486120043646095926634954062732814611648174267133979088112998666426487409616547319073396109952551746956070812851300828038476951990269985021914749161087249691331087153600392647933935", True, True)
     Private rickRoll As New TupperNumber("14858462014267026184847463044915295278652559471591461531013601246041965909968094014491328087054144021193212514675485743667375869739370703586080318750673599857073936072704236551128661305329214452063954886672927963421329856355362323968050725018605956217987665927348135695300854844311400104197079621092723521753309226640825505538014409958939864243727226216233149978784317818476120179448775057160615305444510286889595001504618712029211557750363872865223404300289202234085132824642926552052553745992310827455707348992")
 
-    Private n As TupperNumber = tupperFormula
+    Private number As TupperNumber = tupperFormula
     Private scaleFactor As Integer = 10
 
     Private bmp As DirectBitmap
     Private w As Integer = 106
     Private h As Integer = 17
+    Private topMargin As Integer
 
     Private r As BigInteger
 
@@ -34,15 +35,38 @@ Public Class FormMain
 
         Me.BackColor = Color.White
 
+        topMargin = TextBoxNumber.Margin.Top * 2 + TextBoxNumber.Height + 12
+
         bmp = New DirectBitmap(w * scaleFactor, h * scaleFactor)
         Me.Width = w * scaleFactor + 10 * 2 + (Me.Width - Me.DisplayRectangle.Width)
-        Me.Height = h * scaleFactor + 10 * 2 + (Me.Height - Me.DisplayRectangle.Height)
+        Me.Height = h * scaleFactor + 10 * 2 + (Me.Height - Me.DisplayRectangle.Height) + topMargin
+        Me.Left = (My.Computer.Screen.WorkingArea.Width - Me.Width) / 2
+        Me.Top = (My.Computer.Screen.WorkingArea.Height - Me.Height) / 2
+
+        AddHandler TextBoxNumber.TextChanged, AddressOf UpdateTupperNumber
+        AddHandler CheckBoxInvertColors.CheckedChanged, AddressOf UpdateTupperNumber
+        AddHandler CheckBoxFlipXY.CheckedChanged, AddressOf UpdateTupperNumber
+
+        TextBoxNumber.Text = tupperFormula.Number.ToString()
+        TextBoxNumber.SelectionStart = TextBoxNumber.Text.Length
+    End Sub
+
+    Private Sub UpdateTupperNumber()
+        Try
+            number = New TupperNumber(TextBoxNumber.Text,
+                                  CheckBoxFlipXY.Checked,
+                                  CheckBoxInvertColors.Checked)
+        Catch ex As Exception
+            MsgBox(ex.Message, MsgBoxStyle.Exclamation)
+            number = New TupperNumber(0)
+        End Try
 
         UpdateBitmap()
     End Sub
 
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
-        e.Graphics.DrawImageUnscaled(bmp.Bitmap, 10, 10)
+        e.Graphics.FillRectangle(Brushes.Gainsboro, 0, 0, Me.Width, topMargin + 4)
+        e.Graphics.DrawImageUnscaled(bmp.Bitmap, 10, 10 + topMargin)
     End Sub
 
     Private Sub UpdateBitmap()
@@ -50,18 +74,20 @@ Public Class FormMain
 
         For y As Integer = 0 To h - 1
             For x As Integer = 0 To w - 1
-                t = Tupper(x, y + n.InitialNumber)
-                DrawBit(x, y, If(If(n.InvertColors, Not t, t), Color.Black, Color.White))
+                t = Tupper(x, y + number.Number)
+                DrawBit(x, y, If(If(number.InvertColors, Not t, t), Color.Black, Color.White))
             Next
         Next
+
+        Me.Invalidate()
     End Sub
 
     Private Sub DrawBit(x1 As Integer, y1 As Integer, color As Color)
         Dim offset As Integer
         For y = y1 * scaleFactor To y1 * scaleFactor + scaleFactor - 1
             For x = x1 * scaleFactor To x1 * scaleFactor + scaleFactor - 1
-                offset = (bmp.Width - If(n.FlipXY, bmp.Width - x - 1, x) - 1) * 4 +
-                         (If(n.FlipXY, bmp.Height - y - 1, y) * bmp.Width * 4)
+                offset = (bmp.Width - If(number.FlipXY, bmp.Width - x - 1, x) - 1) * 4 +
+                         (If(number.FlipXY, bmp.Height - y - 1, y) * bmp.Width * 4)
 
                 bmp.Bits(offset + 3) = color.A
                 bmp.Bits(offset + 2) = color.R
@@ -83,26 +109,4 @@ Public Class FormMain
 
         Return 5 < r
     End Function
-
-    Private Sub FormMain_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode <> Keys.Enter Then Exit Sub
-
-        Dim tmp1 As New Thread(Sub()
-                                   Do
-                                       n.InitialNumber += 1
-                                       UpdateBitmap()
-                                   Loop
-                               End Sub)
-        tmp1.IsBackground = True
-        tmp1.Start()
-
-        Dim tmp2 As New Thread(Sub()
-                                   Do
-                                       Me.Invalidate()
-                                       Thread.Sleep(33)
-                                   Loop
-                               End Sub)
-        tmp2.IsBackground = True
-        tmp2.Start()
-    End Sub
 End Class
