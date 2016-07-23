@@ -22,6 +22,22 @@ Public Class DirectBitmap
         Me.Bitmap = New Bitmap(w, h, w * 4, PixelFormat.Format32bppPArgb, bitsHandle.AddrOfPinnedObject())
     End Sub
 
+    Public Shared Widening Operator CType(bmp As Bitmap) As DirectBitmap
+        If bmp Is Nothing Then Return Nothing
+
+        Dim dbmp As New DirectBitmap(bmp.Width, bmp.Height)
+        Using g As Graphics = Graphics.FromImage(bmp)
+            g.DrawImageUnscaled(bmp, Point.Empty)
+        End Using
+
+        Return dbmp
+    End Operator
+
+    Public Shared Narrowing Operator CType(dbmp As DirectBitmap) As Bitmap
+        If dbmp Is Nothing Then Return Nothing
+        Return dbmp.Bitmap
+    End Operator
+
 #Region "IDisposable Support"
     Private disposedValue As Boolean ' To detect redundant calls
 
