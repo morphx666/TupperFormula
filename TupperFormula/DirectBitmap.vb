@@ -26,7 +26,7 @@ Public Class DirectBitmap
         If bmp Is Nothing Then Return Nothing
 
         Dim dbmp As New DirectBitmap(bmp.Width, bmp.Height)
-        Using g As Graphics = Graphics.FromImage(bmp)
+        Using g As Graphics = Graphics.FromImage(dbmp.Bitmap)
             g.DrawImageUnscaled(bmp, Point.Empty)
         End Using
 
