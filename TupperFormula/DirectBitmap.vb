@@ -213,4 +213,18 @@ Module DirectBitmapExtensions
         Next
         dbmp.DrawPolygon(c, pi)
     End Sub
+
+    <Extension()>
+    Public Sub FillRectangle(dbmp As DirectBitmap, c As Color, r As Rectangle)
+        FillRectangle(dbmp, c, r.X, r.Y, r.Width, r.Height)
+    End Sub
+
+    <Extension()>
+    Public Sub FillRectangle(dbmp As DirectBitmap, c As Color, x As Integer, y As Integer, w As Integer, h As Integer)
+        For x1 As Integer = x To x + w - 1
+            For y1 As Integer = y To y + h - 1
+                dbmp.Pixel(x1, y1) = c
+            Next
+        Next
+    End Sub
 End Module
