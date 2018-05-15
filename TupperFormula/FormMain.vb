@@ -1,5 +1,4 @@
 ﻿Imports System.Numerics
-Imports System.Threading
 
 ' http://mathworld.wolfram.com/TuppersSelf-ReferentialFormula.html
 ' https://en.wikipedia.org/wiki/Tupper%27s_self-referential_formula
@@ -19,7 +18,7 @@ Public Class FormMain
                 New TupperNumber("Gaussian integral", "508411814725237793490184685607928051712978709069113963219472322355961889205509647875243182487424548011065302195495255076677579195428341974648257591226943624088561851582362286514668228623643268365545205530024977530231620346490475113424521177721792317416883907382225428124416171767731730432833100919222165896234346422524283458953655483165926745106112524241008306406740167124219895434116142045940981532296849259570821460383355145202351587983360", True)
     }
 
-    Private scaleFactor As Integer = 10
+    Private scaleFactor As Integer = 8
 
     Private bmp As DirectBitmap
     Private w As Integer = 106
@@ -28,6 +27,7 @@ Public Class FormMain
     Private hasErrors As Boolean
     Private ignoreEvents As Boolean
     Private selectedFormulaIndex As Integer
+    Private gridColor As Pen = Pens.LightGray
 
     Private r As BigInteger
 
@@ -39,15 +39,9 @@ Public Class FormMain
         Me.SetStyle(ControlStyles.ResizeRedraw, True)
         Me.SetStyle(ControlStyles.UserPaint, True)
 
-        Me.BackColor = Color.White
+        TrackBarScaleFactor.Value = scaleFactor
 
-        topMargin = TextBoxNumber.Margin.Top * 2 + TextBoxNumber.Height + 12
-
-        bmp = New DirectBitmap(w * scaleFactor, h * scaleFactor)
-        Me.Width = w * scaleFactor + 10 * 2 + (Me.Width - Me.DisplayRectangle.Width)
-        Me.Height = h * scaleFactor + 10 * 2 + (Me.Height - Me.DisplayRectangle.Height) + topMargin
-        Me.Left = (My.Computer.Screen.WorkingArea.Width - Me.Width) / 2
-        Me.Top = (My.Computer.Screen.WorkingArea.Height - Me.Height) / 2
+        Setup(True)
 
         AddHandler TextBoxNumber.TextChanged, Sub() UpdateTupperNumber()
         AddHandler CheckBoxInvertColors.CheckedChanged, Sub() UpdateTupperNumber()
@@ -64,6 +58,11 @@ Public Class FormMain
                                                               ignoreEvents = False
                                                               UpdateTupperNumber()
                                                           End Sub
+        AddHandler TrackBarScaleFactor.ValueChanged, Sub()
+                                                         Setup(False)
+                                                         UpdateTupperNumber()
+                                                     End Sub
+        AddHandler CheckBoxShowGrid.CheckedChanged, Sub() Me.Invalidate()
 
         For Each f In formulas
             ComboBoxFormulas.Items.Add(f)
@@ -76,6 +75,20 @@ Public Class FormMain
                                                      formulas(selectedFormulaIndex).Name = ComboBoxFormulas.Text
                                                      UpdateTupperNumber()
                                                  End Sub
+    End Sub
+
+    Private Sub Setup(centerWindow As Boolean)
+        scaleFactor = TrackBarScaleFactor.Value
+
+        topMargin = TrackBarScaleFactor.Bottom + TrackBarScaleFactor.Margin.Top * 2
+
+        bmp = New DirectBitmap(w * scaleFactor, h * scaleFactor)
+        Me.Width = w * scaleFactor + 10 * 2 + (Me.Width - Me.DisplayRectangle.Width)
+        Me.Height = h * scaleFactor + 10 * 2 + (Me.Height - Me.DisplayRectangle.Height) + topMargin
+        If centerWindow Then
+            Me.Left = (My.Computer.Screen.WorkingArea.Width - Me.Width) / 2
+            Me.Top = (My.Computer.Screen.WorkingArea.Height - Me.Height) / 2
+        End If
     End Sub
 
     Private Sub UpdateTupperNumber()
@@ -98,13 +111,26 @@ Public Class FormMain
     End Sub
 
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
-        e.Graphics.FillRectangle(Brushes.Gainsboro, 0, 0, Me.Width, topMargin + 4)
-        e.Graphics.DrawImageUnscaled(bmp.Bitmap, 10, 10 + topMargin)
+        Dim g As Graphics = e.Graphics
+
+        Dim l As Integer = 10
+        Dim t As Integer = 10 + topMargin
+
+        g.FillRectangle(Brushes.Gainsboro, 0, topMargin, Me.Width, Me.Height - topMargin)
+        g.DrawImageUnscaled(bmp.Bitmap, l, t)
+
+        If CheckBoxShowGrid.Checked Then
+            For y As Integer = 0 To h * scaleFactor Step scaleFactor
+                For x As Integer = 0 To w * scaleFactor Step scaleFactor
+                    g.DrawLine(gridColor, x + l, t, x + l, t + h * scaleFactor - 1)
+                Next
+                g.DrawLine(gridColor, l, y + t, l + w * scaleFactor - 1, y + t)
+            Next
+        End If
     End Sub
 
     Private Sub UpdateBitmap()
         Dim t As Boolean
-
         Dim formula As TupperNumber = If(hasErrors, New TupperNumber("", "0"), CType(ComboBoxFormulas.Items(selectedFormulaIndex), TupperNumber))
 
         For y As Integer = 0 To h - 1
