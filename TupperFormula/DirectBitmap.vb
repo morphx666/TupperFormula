@@ -73,22 +73,37 @@ Public Class DirectBitmap
         Return dbmp.Bitmap
     End Operator
 
+    Public Property Pixel(index As Integer) As Color
+        Get
+            Return Color.FromArgb(Bits(index + 3),
+                                  Bits(index + 2),
+                                  Bits(index + 1),
+                                  Bits(index + 0))
+        End Get
+        Set(value As Color)
+            Bits(index + 3) = value.A
+            Bits(index + 2) = value.R
+            Bits(index + 1) = value.G
+            Bits(index + 0) = value.B
+        End Set
+    End Property
+
     Public Property Pixel(x As Integer, y As Integer) As Color
         Get
             If x < 0 OrElse x >= Width OrElse y < 0 OrElse y >= Height Then Exit Property
-            Dim offset As Integer = y * w4 + x * 4
-            Return Color.FromArgb(Bits(offset + 3),
-                                  Bits(offset + 2),
-                                  Bits(offset + 1),
-                                  Bits(offset + 0))
+            Dim index As Integer = y * w4 + x * 4
+            Return Color.FromArgb(Bits(index + 3),
+                                  Bits(index + 2),
+                                  Bits(index + 1),
+                                  Bits(index + 0))
         End Get
         Set(value As Color)
             If x < 0 OrElse x >= Width OrElse y < 0 OrElse y >= Height Then Exit Property
-            Dim offset As Integer = y * w4 + x * 4
-            Bits(offset + 3) = value.A
-            Bits(offset + 2) = value.R
-            Bits(offset + 1) = value.G
-            Bits(offset + 0) = value.B
+            Dim index As Integer = y * w4 + x * 4
+            Bits(index + 3) = value.A
+            Bits(index + 2) = value.R
+            Bits(index + 1) = value.G
+            Bits(index + 0) = value.B
         End Set
     End Property
 

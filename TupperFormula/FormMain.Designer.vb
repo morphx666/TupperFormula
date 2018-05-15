@@ -25,15 +25,16 @@ Partial Class FormMain
         Me.TextBoxNumber = New System.Windows.Forms.TextBox()
         Me.CheckBoxInvertColors = New System.Windows.Forms.CheckBox()
         Me.CheckBoxFlipXY = New System.Windows.Forms.CheckBox()
+        Me.ComboBoxFormulas = New System.Windows.Forms.ComboBox()
         Me.SuspendLayout()
         '
         'TextBoxNumber
         '
         Me.TextBoxNumber.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TextBoxNumber.Location = New System.Drawing.Point(12, 12)
+        Me.TextBoxNumber.Location = New System.Drawing.Point(158, 12)
         Me.TextBoxNumber.Name = "TextBoxNumber"
-        Me.TextBoxNumber.Size = New System.Drawing.Size(715, 23)
+        Me.TextBoxNumber.Size = New System.Drawing.Size(569, 23)
         Me.TextBoxNumber.TabIndex = 0
         Me.TextBoxNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
@@ -61,10 +62,19 @@ Partial Class FormMain
         Me.CheckBoxFlipXY.Text = "FlipXY"
         Me.CheckBoxFlipXY.UseVisualStyleBackColor = False
         '
+        'ComboBoxFormulas
+        '
+        Me.ComboBoxFormulas.FormattingEnabled = True
+        Me.ComboBoxFormulas.Location = New System.Drawing.Point(12, 12)
+        Me.ComboBoxFormulas.Name = "ComboBoxFormulas"
+        Me.ComboBoxFormulas.Size = New System.Drawing.Size(140, 23)
+        Me.ComboBoxFormulas.TabIndex = 3
+        '
         'FormMain
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
         Me.ClientSize = New System.Drawing.Size(903, 337)
+        Me.Controls.Add(Me.ComboBoxFormulas)
         Me.Controls.Add(Me.CheckBoxFlipXY)
         Me.Controls.Add(Me.CheckBoxInvertColors)
         Me.Controls.Add(Me.TextBoxNumber)
@@ -83,4 +93,5 @@ Partial Class FormMain
     Friend WithEvents TextBoxNumber As TextBox
     Friend WithEvents CheckBoxInvertColors As CheckBox
     Friend WithEvents CheckBoxFlipXY As CheckBox
+    Friend WithEvents ComboBoxFormulas As ComboBox
 End Class
