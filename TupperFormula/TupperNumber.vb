@@ -1,7 +1,7 @@
 ﻿Imports System.Numerics
 
 Public Class TupperNumber
-    Public ReadOnly Property Name As String
+    Public Property Name As String
     Public Property Number As BigInteger
     Public ReadOnly Property FlipXY As Boolean
     Public ReadOnly Property InvertColors As Boolean
